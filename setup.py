@@ -6,7 +6,7 @@ import listish
 
 
 setup(
-    name='Listish',
+    name='listish',
     version='0.1',
     description=listish.__doc__,
     author='Matt Wheeler, Connor Shearwood',
