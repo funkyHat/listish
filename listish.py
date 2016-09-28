@@ -6,6 +6,9 @@ wrap any iterator.
 from collections import Sequence, MutableSequence
 
 
+__version__ = '0.1'
+
+
 class Tupleish(Sequence):
     """
     A lazily evaluated tuple-like object.

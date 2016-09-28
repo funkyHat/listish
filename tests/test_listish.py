@@ -3,8 +3,8 @@
 import random
 from sys import maxsize
 
-from hypothesis import given, strategies
 import pytest
+from hypothesis import given, strategies
 
 from listish import Tupleish, Listish
 
@@ -46,6 +46,18 @@ def test_iter(cls, l):
         next(iterator)
 
 
+@pytest.mark.parametrize('cls', [Tupleish, Listish])
+@given(l=strategies.lists(strategies.integers(), min_size=1))
+def test_iter_twice(cls, l):
+    lst = cls(l)
+    # Iterate over the first element so it's pre-cached
+    next(iter(lst))
+
+    iterator = iter(lst)
+    for value in l:
+        assert next(iterator) == value
+
+
 @given(
     l=strategies.lists(strategies.integers()),
     index=strategies.integers(min_value=0, max_value=maxsize),
@@ -70,3 +82,59 @@ def test_insert(l, index):
 
     assert len(tup._datastore) == index + 1
     assert tup[index] is True
+
+
+@strategies.composite
+def list_and_index(draw, elements=strategies.integers()):
+    xs = draw(strategies.lists(elements, min_size=1))
+    i = draw(strategies.integers(min_value=0, max_value=len(xs) - 1))
+    return xs, i
+
+
+@strategies.composite
+def list_and_indexerror(draw, elements=strategies.integers()):
+    xs = draw(strategies.lists(elements))
+    i = draw(strategies.integers(min_value=len(xs)))
+    return xs, i
+
+
+@given(li=list_and_index())
+def test_setitem(li):
+    l, i = li
+    lst = Listish(l)
+
+    lst[i] = True
+
+    assert lst[i] is True
+
+
+@given(li=list_and_indexerror())
+def test_setitem_indexerror(li):
+    l, i = li
+    lst = Listish(l)
+
+    with pytest.raises(IndexError) as e:
+        lst[i] = True
+    assert 'assignment' in str(e.value)
+
+
+@given(li=list_and_index())
+def test_delitem(li):
+    l, i = li
+    lst = Listish(l)
+
+    del lst[i]
+
+    lst_list = list(lst)
+
+    assert len(lst_list) == len(l) - 1
+
+
+@given(li=list_and_indexerror())
+def test_delitem_indexerror(li):
+    l, i = li
+    lst = Listish(l)
+
+    with pytest.raises(IndexError) as e:
+        del lst[i]
+    assert 'assignment' in str(e.value)
