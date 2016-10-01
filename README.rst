@@ -1,11 +1,16 @@
 .. role:: py(code)
     :language: python
+
 Listish
 =======
 .. image:: https://circleci.com/gh/funkyHat/listish.svg?style=svg
     :target: https://circleci.com/gh/funkyHat/listish
 
-:py:`Listish` accepts an arbitrary iterable and presents it as a list-like object.
+:py:`listish.Listish` is a list-behaviour wrapper for arbitrary sequences and iterables (including iterators).
+
+It acts as a mutable data wrapper for arbitrary inputs.
+On top of non-indexable input it also adds indexability.
+
 The input is used efficiently, only scanning far enough to retrieve the requested index.
 
 .. code-block:: python
@@ -22,3 +27,8 @@ Any iterable (or iterator) is supported:
     >>> l = Listish(g)
     >>> l[3]
     48
+
+
+Tupleish
+--------
+:py:`listish.Tupleish` provides indexing & persistence while presenting an immutable interface.
