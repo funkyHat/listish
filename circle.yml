@@ -6,4 +6,3 @@ dependencies:
 test:
   post:
     - codecov
-    - bash <(curl -s https://codecov.io/bash)
