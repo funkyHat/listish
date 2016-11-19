@@ -33,6 +33,12 @@ class Tupleish(Sequence):
             yield self._consume_next()
 
     def __getitem__(self, index):
+        if isinstance(index, slice):
+            return [
+                self[i]
+                for i
+                in range(*index.indices(len(self)))
+                ]
         try:
             while len(self._datastore) < index + 1:
                 self._consume_next()
