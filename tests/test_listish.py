@@ -1,6 +1,7 @@
 # pylint:disable=missing-docstring
 
 import random
+from copy import copy
 from sys import maxsize
 
 import pytest
@@ -85,10 +86,16 @@ def test_insert(l, index):
 
 
 @strategies.composite
-def list_and_index(draw, elements=strategies.integers()):
-    xs = draw(strategies.lists(elements, min_size=1))
-    i = draw(strategies.integers(min_value=0, max_value=len(xs) - 1))
-    return xs, i
+def list_and_index(draw, elements=strategies.integers(), index_count=1):
+    """
+    Returns a list & <index_count> valid indexes for that list
+    """
+    values = [draw(strategies.lists(elements, min_size=1))]
+    for _ in range(index_count):
+        values.append(
+                draw(strategies.integers(
+                    min_value=0, max_value=len(values[0]) - 1)))
+    return values
 
 
 @strategies.composite
@@ -138,3 +145,49 @@ def test_delitem_indexerror(li):
     with pytest.raises(IndexError) as e:
         del lst[i]
     assert 'assignment' in str(e.value)
+
+
+@pytest.mark.parametrize('cls', [Tupleish, Listish])
+@given(li=list_and_index(index_count=2))
+def test_get_slice(cls, li):
+    l, i, j = li
+    lst = cls(l)
+
+    for k, l in zip(
+            l[i:j],
+            lst[i:j]):
+        assert k is l
+
+
+@given(
+    li=list_and_index(index_count=2),
+    ins=strategies.lists(strategies.integers()),
+    )
+def test_add_slice(li, ins):
+    l, i, j = li
+    lc = copy(l)
+    lst = Listish(l)
+
+    # Insert the new list in place of i:j
+    lc[i:j] = ins
+    lst[i:j] = ins
+
+    assert len(lst) == len(lc)
+
+    for m, n in zip(lst, lc):
+        assert m == n
+
+
+@given(li=list_and_index(index_count=2))
+def test_del_slice(li):
+    l, i, j = li
+    lc = copy(l)
+    lst = Listish(l)
+
+    del lc[i:j]
+    del lst[i:j]
+
+    assert len(lst) == len(lc)
+
+    for m, n in zip(lst, lc):
+        assert m == n
