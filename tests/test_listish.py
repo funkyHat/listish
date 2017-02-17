@@ -168,10 +168,7 @@ def test_get_slice(cls, li):
 def test_get_potentially_out_of_bounds_slice(cls, l, start, end):
     lst = cls(l)
 
-    for k, l in zip(
-            l[start:end],
-            lst[start:end]):
-        assert k is l
+    assert l[start:end] == lst[start:end]
 
 
 @pytest.mark.parametrize('cls', [Tupleish, Listish])
@@ -186,10 +183,7 @@ def test_get_extended_slice(cls, li, step):
     l, i, j = li
     lst = cls(l)
 
-    for k, l in zip(
-            l[i:j:step],
-            lst[i:j:step]):
-        assert k is l
+    assert l[i:j:step] == lst[i:j:step]
 
 
 @given(
@@ -205,10 +199,7 @@ def test_add_slice(li, ins):
     lc[i:j] = ins
     lst[i:j] = ins
 
-    assert len(lst) == len(lc)
-
-    for m, n in zip(lst, lc):
-        assert m == n
+    assert list(lst) == list(lc)
 
 
 @given(li=list_and_index(index_count=2))
@@ -222,5 +213,4 @@ def test_del_slice(li):
 
     assert len(lst) == len(lc)
 
-    for m, n in zip(lst, lc):
-        assert m == n
+    assert list(lst) == list(lc)

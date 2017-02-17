@@ -59,8 +59,17 @@ class Tupleish(Sequence):
 
     def __getitem__(self, index):
         if isinstance(index, slice):
-            return list(self._get_items_in_bounds(
-                range(*self._get_indices(index))))
+            start, stop, step = self._get_indices(index)
+
+            min_slice = min(start, stop)
+            # Add two to the max to ensure we get the last value (+1) plus the
+            # fact that range() is exclusive on its stop value and requires an
+            # additional +1 to cover the expected inclusive stop
+            max_slice = max(start, stop) + 2
+            maximum_possible_slice = range(min_slice, max_slice)
+            list(self._get_items_in_bounds(maximum_possible_slice))
+
+            return list(self._get_items_in_bounds(range(start, stop, step)))
         try:
             while len(self._datastore) < index + 1:
                 self._consume_next()
@@ -73,7 +82,7 @@ class Tupleish(Sequence):
             try:
                 yield self[i]
             except IndexError:
-                pass
+                return
 
     def _get_indices(self, slice_):
         try:
@@ -91,7 +100,7 @@ class Tupleish(Sequence):
             if unbounded_end or unbounded_step or negative_index:
                 raise MustExhaustException()
 
-            length = slice_.stop + 1
+            length = max(slice_.stop, slice_.start) + 1
         except MustExhaustException:
             length = len(self)
 
