@@ -202,6 +202,31 @@ def test_add_slice(li, ins):
     assert list(lst) == list(lc)
 
 
+@given(
+    li=list_and_index(index_count=2),
+    step=strategies.one_of(
+        strategies.integers(min_value=1),
+        strategies.integers(max_value=-1)
+    ),
+    data=strategies.data()
+)
+def test_replace_extended_slice(li, step, data):
+    l, i, j = li
+    lst = Listish(l)
+
+    replacement_length = len(l[i:j:step])
+    replacement = data.draw(strategies.lists(
+        strategies.integers(),
+        min_size=replacement_length,
+        max_size=replacement_length
+    ))
+
+    l[i:j:step] = replacement
+    lst[i:j:step] = replacement
+
+    assert l == list(lst)
+
+
 @given(li=list_and_index(index_count=2))
 def test_del_slice(li):
     l, i, j = li
@@ -214,3 +239,21 @@ def test_del_slice(li):
     assert len(lst) == len(lc)
 
     assert list(lst) == list(lc)
+
+
+@given(
+    li=list_and_index(index_count=2),
+    step=strategies.one_of(
+        strategies.integers(min_value=1),
+        strategies.integers(max_value=-1)
+    ),
+)
+def test_delete_extended_slice(li, step):
+    l, i, j = li
+    lc = copy(l)
+    lst = Listish(l)
+
+    del lc[i:j:step]
+    del lst[i:j:step]
+
+    assert lc == list(lst)
