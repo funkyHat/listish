@@ -16,24 +16,6 @@ class MustExhaustException(RuntimeError):
     """
 
 
-def slice_to_indicies(slice_):
-    unbounded_end = slice_.start is not None and slice_.stop is None
-    unbounded_step = (
-        slice_.start is None and
-        slice_.stop is None and
-        slice_.step is not None
-    )
-    negative_index = (
-        (slice_.start is not None and slice_.start < 0) or
-        (slice_.stop is not None and slice_.stop < 0)
-    )
-
-    if unbounded_end or unbounded_step or negative_index:
-        raise MustExhaustException()
-
-    return slice_.indicies(max(slice_.stop))
-
-
 class Tupleish(Sequence):
     """
     A lazily evaluated tuple-like object.
