@@ -159,10 +159,43 @@ def test_get_slice(cls, li):
         assert k is l
 
 
+@pytest.mark.parametrize('cls', [Tupleish, Listish])
+@given(
+    l=strategies.lists(strategies.integers()),
+    start=strategies.integers(),
+    end=strategies.integers(),
+)
+def test_get_potentially_out_of_bounds_slice(cls, l, start, end):
+    lst = cls(l)
+
+    for k, l in zip(
+            l[start:end],
+            lst[start:end]):
+        assert k is l
+
+
+@pytest.mark.parametrize('cls', [Tupleish, Listish])
+@given(
+    li=list_and_index(index_count=2),
+    step=strategies.one_of(
+        strategies.integers(min_value=1),
+        strategies.integers(max_value=-1)
+    ),
+)
+def test_get_extended_slice(cls, li, step):
+    l, i, j = li
+    lst = cls(l)
+
+    for k, l in zip(
+            l[i:j:step],
+            lst[i:j:step]):
+        assert k is l
+
+
 @given(
     li=list_and_index(index_count=2),
     ins=strategies.lists(strategies.integers()),
-    )
+)
 def test_add_slice(li, ins):
     l, i, j = li
     lc = copy(l)
