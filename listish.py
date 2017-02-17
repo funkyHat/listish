@@ -11,8 +11,8 @@ __version__ = '0.1'
 
 class MustExhaustException(RuntimeError):
     """
-    Raised when a slice cannot be converted into a list of indexes as it requires knowledge of the length of the
-    iterable
+    Raised when a slice cannot be converted into a list of indexes as it
+    requires knowledge of the length of the iterable
     """
 
 
