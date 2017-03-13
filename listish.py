@@ -4,6 +4,11 @@ wrap any iterator.
 """
 
 from collections import Sequence, MutableSequence
+from sys import version_info
+
+
+if version_info < (3, 0):  # pragma: no cover
+    range = xrange  # pylint: disable=redefined-builtin,invalid-name
 
 
 __version__ = '0.1'

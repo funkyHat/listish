@@ -2,7 +2,7 @@
 
 import random
 from copy import copy
-from sys import maxsize
+from sys import maxsize, version_info
 
 import pytest
 from hypothesis import given, strategies
@@ -159,11 +159,14 @@ def test_get_slice(cls, li):
         assert k is l
 
 
+max_index_size = maxsize - 2 if version_info < (3, 4) else None
+
+
 @pytest.mark.parametrize('cls', [Tupleish, Listish])
 @given(
     l=strategies.lists(strategies.integers()),
-    start=strategies.integers(),
-    end=strategies.integers(),
+    start=strategies.integers(max_value=max_index_size),
+    end=strategies.integers(max_value=max_index_size),
 )
 def test_get_potentially_out_of_bounds_slice(cls, l, start, end):
     lst = cls(l)
