@@ -2,7 +2,7 @@
 
 import random
 from copy import copy
-from sys import maxsize
+from sys import maxsize, version_info
 
 import pytest
 from hypothesis import given, strategies
@@ -159,10 +159,40 @@ def test_get_slice(cls, li):
         assert k is l
 
 
+max_index_size = maxsize - 2 if version_info < (3, 4) else None
+
+
+@pytest.mark.parametrize('cls', [Tupleish, Listish])
+@given(
+    l=strategies.lists(strategies.integers()),
+    start=strategies.integers(max_value=max_index_size),
+    end=strategies.integers(max_value=max_index_size),
+)
+def test_get_potentially_out_of_bounds_slice(cls, l, start, end):
+    lst = cls(l)
+
+    assert l[start:end] == lst[start:end]
+
+
+@pytest.mark.parametrize('cls', [Tupleish, Listish])
+@given(
+    li=list_and_index(index_count=2),
+    step=strategies.one_of(
+        strategies.integers(min_value=1),
+        strategies.integers(max_value=-1)
+    ),
+)
+def test_get_extended_slice(cls, li, step):
+    l, i, j = li
+    lst = cls(l)
+
+    assert l[i:j:step] == lst[i:j:step]
+
+
 @given(
     li=list_and_index(index_count=2),
     ins=strategies.lists(strategies.integers()),
-    )
+)
 def test_add_slice(li, ins):
     l, i, j = li
     lc = copy(l)
@@ -172,10 +202,32 @@ def test_add_slice(li, ins):
     lc[i:j] = ins
     lst[i:j] = ins
 
-    assert len(lst) == len(lc)
+    assert list(lst) == list(lc)
 
-    for m, n in zip(lst, lc):
-        assert m == n
+
+@given(
+    li=list_and_index(index_count=2),
+    step=strategies.one_of(
+        strategies.integers(min_value=1),
+        strategies.integers(max_value=-1)
+    ),
+    data=strategies.data()
+)
+def test_replace_extended_slice(li, step, data):
+    l, i, j = li
+    lst = Listish(l)
+
+    replacement_length = len(l[i:j:step])
+    replacement = data.draw(strategies.lists(
+        strategies.integers(),
+        min_size=replacement_length,
+        max_size=replacement_length
+    ))
+
+    l[i:j:step] = replacement
+    lst[i:j:step] = replacement
+
+    assert l == list(lst)
 
 
 @given(li=list_and_index(index_count=2))
@@ -189,5 +241,22 @@ def test_del_slice(li):
 
     assert len(lst) == len(lc)
 
-    for m, n in zip(lst, lc):
-        assert m == n
+    assert list(lst) == list(lc)
+
+
+@given(
+    li=list_and_index(index_count=2),
+    step=strategies.one_of(
+        strategies.integers(min_value=1),
+        strategies.integers(max_value=-1)
+    ),
+)
+def test_delete_extended_slice(li, step):
+    l, i, j = li
+    lc = copy(l)
+    lst = Listish(l)
+
+    del lc[i:j:step]
+    del lst[i:j:step]
+
+    assert lc == list(lst)
