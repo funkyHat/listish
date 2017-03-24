@@ -42,15 +42,10 @@ only scanning far enough to retrieve the requested index:
     4
     >>> next(r)
     5
-
-.. note::
-    In practise interfering with an iterable after passing it to this library is a bad idea,
-    as we can see, continuing in the same ``python`` session:
-
-    .. code-block:: python
-
-        >>> l[5]
-        6
+    >>> print(warning)
+    In practise interfering with an iterable after passing it to this library is a bad idea, as we can see
+    >>> l[5]
+    6
 
 
 Tupleish
