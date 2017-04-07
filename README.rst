@@ -12,7 +12,7 @@ It acts as a mutable data wrapper for arbitrary inputs.
 On top of non-indexable input it also adds indexability.
 
 
-Any iterable (or iterator) is supported:
+Any iterable (including iterators) is supported:
 
 .. code-block:: python
 
