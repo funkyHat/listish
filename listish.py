@@ -11,7 +11,7 @@ if version_info < (3, 0):  # pragma: no cover
     range = xrange  # pylint: disable=redefined-builtin,invalid-name
 
 
-__version__ = '0.1'
+__version__ = '1.0'
 
 
 class MustExhaustException(RuntimeError):
